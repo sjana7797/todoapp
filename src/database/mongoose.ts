@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import env from "./env";
-import { logger } from "./logger";
+import env from "../lib/env";
+import { logger } from "../lib/logger";
 
 const MONGO_URI = env.MONGO_URI;
 
