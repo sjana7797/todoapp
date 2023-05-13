@@ -9,6 +9,6 @@ export function connectDb() {
     .connect(MONGO_URI, {
       dbName: "todoApp",
     })
-    .then(() => logger.info("Connected to MongoDB"))
+    .then(() => console.info("Connected to MongoDB"))
     .catch((error) => logger.error(error));
 }

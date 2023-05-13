@@ -4,6 +4,7 @@ const env = cleanEnv(process.env, {
   PORT: num(),
   MONGO_URI: str(),
   NODE_ENV: str({ choices: ["development", "test", "production", "staging"] }),
+  JWT_SECRET: str(),
 });
 
 export default env;

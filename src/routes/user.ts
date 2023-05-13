@@ -5,7 +5,11 @@ const router = Router();
 
 router.get("/list", userController.getUserList);
 
-router.post("/register", userController.registerUser);
+router.get("/me", userController.getMyProfile);
+
+router.post("/login", userController.login);
+
+router.post("/register", userController.register);
 
 router.get("/:id", userController.getUserDetails);
 

@@ -1,3 +1,4 @@
+import { Document } from "mongoose";
 import { z } from "zod";
 
 export const UserZodSchema = z.object({
@@ -6,4 +7,11 @@ export const UserZodSchema = z.object({
   password: z.string(),
 });
 
-export type User = z.infer<typeof UserZodSchema>;
+export const UserLoginSchema = UserZodSchema.pick({
+  email: true,
+  password: true,
+});
+
+export type UserZodType = z.infer<typeof UserZodSchema>;
+
+export interface User extends Document, UserZodType {}
