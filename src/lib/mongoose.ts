@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import env from "./env";
+import { logger } from "./logger";
 
 const MONGO_URI = env.MONGO_URI;
 
@@ -8,6 +9,6 @@ export function connectDb() {
     .connect(MONGO_URI, {
       dbName: "todoApp",
     })
-    .then(() => console.log("Connected to MongoDB"))
-    .catch((error) => console.error(error));
+    .then(() => logger.info("Connected to MongoDB"))
+    .catch((error) => logger.error(error));
 }
