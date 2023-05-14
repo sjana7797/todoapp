@@ -3,7 +3,6 @@ import { User } from "../models/user";
 import { globalResponseCreator } from "../utils/response";
 import { UserLoginSchema, UserZodSchema } from "../zodSchema/user";
 import bcrypt from "bcrypt";
-import { logger } from "../lib/logger";
 import { sendCookie } from "../utils/features";
 import jwt from "jsonwebtoken";
 import env from "../lib/env";
@@ -48,7 +47,10 @@ export const getUserDetails: Handler = async (req, res) => {
   }
 };
 
-export const getMyProfile: Handler = (req, res) => {};
+export const getMyProfile: Handler = async (req, res) => {
+  const response = globalResponseCreator(req.user, "User profile fetched", 200);
+  return res.status(200).json(response);
+};
 
 export const login: Handler = async (req, res) => {
   try {
@@ -85,7 +87,7 @@ export const login: Handler = async (req, res) => {
       `Welcome back,${user?.name}`,
       200
     );
-    sendCookie(user._id.toString() || "", res);
+    sendCookie(user._id.toString(), res);
     res.status(200).json(response);
   } catch (error) {
     console.error(error);
@@ -115,10 +117,17 @@ export const register: Handler = async (req, res) => {
 
     user = await User.create({ email, name, password: hashedPassword });
     const response = globalResponseCreator(user, `Welcome,${user?.name}`, 201);
-
     sendCookie(user?._id.toString(), res);
     res.status(201).json(response);
   } catch (error) {
     console.error(error);
   }
+};
+
+export const logout: Handler = (req, res) => {
+  res.cookie("token", null, {
+    httpOnly: true,
+    expires: new Date(Date.now()),
+  });
+  res.status(200).json(globalResponseCreator(null, "Logout successfully", 200));
 };
