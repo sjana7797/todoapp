@@ -2,6 +2,7 @@ import "dotenv/config";
 import { app } from "./app";
 import { connectDb } from "./database/mongoose";
 import env from "./lib/env";
+import { readFileSync } from "fs";
 import { logger } from "./lib/logger";
 import winston from "winston";
 

@@ -1,6 +1,9 @@
-import { Router } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { isAuthenticated } from "../middleware/auth";
 import * as TaskController from "../controller/task";
+import { globalResponseCreator } from "../utils/response";
+import { Router } from "express";
+import { errorHandler } from "../middleware/error";
 
 const router = Router();
 
@@ -14,5 +17,7 @@ router
   .patch(TaskController.updatedTask)
   .delete(TaskController.deleteTask)
   .get(TaskController.getTask);
+
+router.use(errorHandler);
 
 export default router;

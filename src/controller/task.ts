@@ -3,13 +3,13 @@ import { taskCreateZodSchema, taskIdZodValidation } from "../zodSchema/task";
 import { Task } from "../models/task";
 import { globalResponseCreator } from "../utils/response";
 import { applyPatch } from "fast-json-patch";
+import { ErrorHandler } from "../middleware/error";
 
-export const getUserTasks: Handler = async (req, res) => {
+export const getUserTasks: Handler = async (req, res, next) => {
   try {
     const user = req.user;
-    if (!user) {
-      return res.status(401).send("unauthenticated");
-    }
+    if (!user) throw new ErrorHandler("unauthenticated", 401);
+
     const tasks = await Task.find({ user: user._id });
     const data = {
       tasks,
@@ -23,10 +23,12 @@ export const getUserTasks: Handler = async (req, res) => {
     );
 
     return res.status(200).json(response);
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 };
 
-export const createTask: Handler = async (req, res) => {
+export const createTask: Handler = async (req, res, next) => {
   try {
     const { description, title } = taskCreateZodSchema.parse(req.body);
     const user = req.user;
@@ -42,27 +44,18 @@ export const createTask: Handler = async (req, res) => {
     );
     return res.status(200).json(response);
   } catch (error) {
-    console.error(error);
+    next(error);
   }
 };
 
-export const updatedTask: Handler = async (req, res) => {
+export const updatedTask: Handler = async (req, res, next) => {
   try {
     const { patch } = req.body;
 
     const { id } = taskIdZodValidation.parse(req.params);
 
     let task = await Task.findById(id).exec();
-
-    if (!task) {
-      const response = globalResponseCreator(
-        null,
-        `No Task found with provided ${id}`,
-        404,
-        `No Task found with provided ${id}`
-      );
-      return res.status(404).json(response);
-    }
+    if (!task) throw new ErrorHandler(`No Task found with provided ${id}`, 404);
 
     if (!patch.length) {
       const response = globalResponseCreator(task, "Updated", 201);
@@ -93,32 +86,30 @@ export const updatedTask: Handler = async (req, res) => {
 
     return res.status(201).json(response);
   } catch (error) {
-    console.error(error);
+    next(error);
   }
 };
 
-export const deleteTask: Handler = async (req, res) => {
+export const deleteTask: Handler = async (req, res, next) => {
   try {
     const { id } = taskIdZodValidation.parse(req.params);
-    const task = await Task.deleteOne({ _id: id });
+    const task = await Task.findOneAndDelete({ _id: id });
+    if (!task) throw Error("Task not found");
     const response = globalResponseCreator(task, "Task deleted", 200);
     return res.status(200).json(response);
   } catch (error) {
-    console.error(error);
+    next(error);
   }
 };
 
-export const getTask: Handler = async (req, res) => {
+export const getTask: Handler = async (req, res, next) => {
   try {
     const { id } = taskIdZodValidation.parse(req.params);
     const task = await Task.findById(id);
-    if (!task) {
-      const response = globalResponseCreator(null, "Task not found", 404);
-      return res.status(404).json(response);
-    }
+    if (!task) throw Error("Task not found");
     const response = globalResponseCreator(task, "Task Fetched", 200);
     return res.status(200).json(response);
   } catch (error) {
-    console.error(error);
+    next(error);
   }
 };
